@@ -36,4 +36,4 @@ http://localhost:8080/thread/?id=4230&type=debates
 
 
 ## Acknowledgments
-This work is supported by the EU project *[D-CENT](http://dcentproject.eu/)* (FP7/CAPS 610349) and the Spanish Ministry of Economy and Competitiveness under the María de Maeztu Units of Excellence Programme (MDM-2015-0502) 
+This work is supported by the EU project [D-CENT](http://dcentproject.eu/) (FP7/CAPS 610349) and the Spanish Ministry of Economy and Competitiveness under the María de Maeztu Units of Excellence Programme (MDM-2015-0502) 
