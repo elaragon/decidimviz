@@ -3,7 +3,7 @@
 Online debate tools in participatory democracy and crowdsourcing legislation remains limited by several factors. One of them arises when discussion of proposals reach a large number of contributions and therefore citizens encounter 
 difficulties in mapping the arguments that constitute the dialectical debate. 
 
-To address this issue, this visualization tool that shows the discussion of a debate/proposal as an interactive radial tree. The tool builds on *[Decide Madrid](https://decide.madrid.es/)*, the platform for direct democracy launched by the City Council of Madrid in September 2015. 
+To address this issue, this visualization tool shows the discussion of a debate/proposal as an interactive radial tree. The tool builds on *[Decide Madrid](https://decide.madrid.es/)*, the platform for direct democracy launched by the City Council of Madrid in September 2015. 
 
 
 
