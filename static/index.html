@@ -1,0 +1,264 @@
+<!--
+Author: Pablo Aragón @elaragon
+Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
+!-->
+<!DOCTYPE html>
+<title>DCENT dataviz</title>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<script src="../static/jquery.min.js"></script>
+		<script src="../static/bootstrap.min.js"></script>
+		<script src="../static/d3.v3.min.js"></script>
+		<link rel="stylesheet" href="../static/bootstrap.min.css" >
+		<link rel="stylesheet" href="../static/font-awesome.min.css">
+		<link rel="stylesheet" href="../static/style.css">
+	</head>
+	<body>
+
+		<nav class="navbar navbar-inverse">
+                       	<img src="../static/demic.png" class="logo">
+                        <img src="../static/eurecat.png" class="logo">
+			<img src="../static/dcent.png" class="logo"> 
+			<div class="navbar-header" id="post-title"/>
+		</nav>
+
+		<div id="copyright" class="pull-right">
+			Developed by @elaragon <img src="../static/CC.png">
+		</div>
+
+		<div class="row fill">
+			<div id="vis" class="col-md-6"></div>
+			<div  class="col-md-6">
+				<div class="panel panel-default">
+	  				<div id='panel-body' class="panel-body">
+						Thread from <strong>Decide Madrid</strong>, an open consultation and direct democracy
+						platform launched by the Madrid City Council. The size of each node express the number 
+						of votes of that comment and the color is based on the ratio positive/negative votes:
+						<div class="panel-body">
+							<div class="col-md-3"><strong>Black</strong></div>
+							<div class="col-md-9">Central node (the proposal/initial post)</div><br/><br/>
+							<div class="col-md-3"><strong><font color="grey">Grey</font></strong></div>
+							<div class="col-md-9">Comment with no votes</div><br/><br/>
+							<div class="col-md-3"><strong><font color="green">Green</font></strong></div>
+							<div class="col-md-9">Comment with majority of positive votes</div><br/><br/>
+							<div class="col-md-3"><strong><font color="red">Red</font></strong></div>
+							<div class="col-md-9">Comment with majority of negative votes</div><br/><br/>
+							<div class="col-md-3"><strong><font color="orange">Orange</font></strong></div>
+							<div class="col-md-9">Comment with no strong preference of positive/negative votes</div>
+		      			</div>
+						<div id="tooltip"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+
+		// Size of the window
+		var margin = {top: -5, right: -5, bottom: -5, left: -5};
+		var w = document.getElementById("vis").clientWidth,
+			  h = $( document ).height(),
+			  node,
+			  link,
+			  root;
+
+		// Force layout configuration
+		var force = d3.layout.force()
+			  .on("tick", tick)
+			  .charge(function(d) { return 10 * d._children ? -d.size / 20 : -200; })
+			  .linkDistance(function(d) { return d.target._children ? 10 : 20; })
+			  .size([w, h - 160]);
+
+		// Zoom configuration
+		var zoom = d3.behavior.zoom()
+				.scaleExtent([-100, 100])
+				.on("zoom", zoomed);
+
+		var drag = d3.behavior.drag()
+				.origin(function(d) { return d; })
+				.on("dragstart", dragstarted)
+				.on("drag", dragged)
+				.on("dragend", dragended);
+
+
+		function zoomed() {
+			vis.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+		}
+
+		function dragstarted(d) {
+			d3.event.sourceEvent.stopPropagation();
+			d3.select(this).classed("dragging", true);
+		}
+
+		function dragged(d) {
+			d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+		}
+
+		function dragended(d) {
+			d3.select(this).classed("dragging", false);
+		}
+
+		var max_votes_favor_gain = 0;
+		var max_votes_against_gain = 0;
+		var greens = [
+		"#e5f2e5",
+		"#cce5cc",
+		"#b2d8b2",
+		"#99cc99",
+		"#7fbf7f",
+		"#66b266",
+		"#4ca64c",
+		"#329932",
+		"#198c19",
+		"#008000"
+		];
+
+		var reds = [
+		"#ffe5e5",
+		"#ffcccc",
+		"#ffb2b2",
+		"#ff9999",
+		"#ff7f7f",
+		"#ff6666",
+		"#ff4c4c",
+		"#ff3232",
+		"#ff1919",
+		"#ff0000",
+		];
+
+		// Define 'div' for tooltips
+		var div = d3.select("#tooltip").append("div");
+
+		var vis = d3.select("#vis")			  
+			.attr("transform", "translate(" + margin.left + "," + margin.right + ")")
+			.call(zoom).append("svg:svg")
+			.attr("width", w)
+			.attr("height", h)
+			.append("g");
+
+		// Data input
+		d3.json("../static/data.json", function(json) {
+			root = json;
+			root.fixed = true;
+			root.x = w / 2;
+			root.y = h / 3;
+			update();
+		});
+
+		// Update values
+		function update() {
+			$('#post-title').text('Proposal: ' + root['title']);
+			var nodes = flatten(root),
+			    links = d3.layout.tree().links(nodes);
+
+			// Restart the force layout.
+			force
+			    .nodes(nodes)
+			    .links(links)
+			    .start();
+				// Update the links…
+			link = vis.selectAll("line.link")
+			    .data(links, function(d) { return d.target.id; });
+				// Enter any new links.
+			link.enter().insert("svg:line", ".node")
+			    .attr("class", "link")
+			    .attr("fill", "black")
+			    .attr("x1", function(d) { return d.source.x; })
+			    .attr("y1", function(d) { return d.source.y; })
+			    .attr("x2", function(d) { return d.target.x; })
+			    .attr("y2", function(d) { return d.target.y; });
+				// Exit any old links.
+			link.exit().remove();
+				// Update the nodes…
+			node = vis.selectAll("circle.node").data(nodes, function(d) { 
+				if (d.depth!=0) {				
+				max_votes_favor_gain = Math.max(max_votes_favor_gain, d.votes_favor_count-d.votes_against_count);
+				max_votes_against_gain = Math.max(max_votes_against_gain, d.votes_against_count-d.votes_favor_count);
+				}
+				return d.id;  
+			})
+			.style("fill", color);
+	
+			node.transition().attr("r", function(d) { return d.depth==0 ? 5 : 2.5 + d.size / 2; });
+
+			// Enter any new nodes.
+			node.enter().append("svg:circle")
+			    .attr("class", "node")
+			    .attr("cx", function(d) { return d.x; })
+			    .attr("cy", function(d) { return d.y; })
+			    .attr("r", function(d) { return d.depth==0 ? 5 : 2.5 + d.size / 2; })
+			    .style("fill", color)
+			    .attr("text", function(d) { d.message })
+			    .on("click", click)
+			    .call(force.drag);
+
+			// Exit any old nodes.
+			node.exit().remove();
+		}
+
+		// Tick
+		function tick() {
+			link.attr("x1", function(d) { return d.source.x; })
+			    .attr("y1", function(d) { return d.source.y; })
+			    .attr("x2", function(d) { return d.target.x; })
+			    .attr("y2", function(d) { return d.target.y; });
+				node.attr("cx", function(d) { return d.x; })
+			    .attr("cy", function(d) { return d.y; })
+			    .on("mouseover", 
+				function(d){  
+					tooltip = '<div class="panel panel-primary">';
+					tooltip = tooltip + '<div class="panel-heading">' + d.ts +' &nbsp;&nbsp;' + d.user + '</div>  <div class="panel-body">   ' + d.message + '<p align="right">'+d.votes_favor_count+'&nbsp;';
+					if (d.type == 'proposal') tooltip = tooltip + 'supports';
+					else tooltip = tooltip + '<i class="fa fa-angle-up"></i>&nbsp;&nbsp;<i class="fa fa-angle-down"></i>&nbsp;'+d.votes_against_count;
+					tooltip = tooltip + '</p>   </div> </div>'
+					div.html(tooltip)
+
+				});
+		}
+
+		// Set colors according to voting ratio
+		function color(d) {
+			var votes_favor_count = parseInt(d.votes_favor_count);
+			var votes_against_count = parseInt(d.votes_against_count);
+			if (d.depth==0) { return "black"; }
+			if (votes_favor_count + votes_against_count==0) { return "grey"; }
+			if (votes_favor_count > votes_against_count) { 
+				index = Math.floor(9*(votes_favor_count - votes_against_count)/ max_votes_favor_gain);
+				if ((votes_favor_count*votes_against_count!=0)&&(index<2)) return "orange";
+				return greens[index];				
+			}			
+			if (votes_against_count > votes_favor_count) { 
+				index = Math.floor(9*(votes_against_count - votes_favor_count)/ max_votes_against_gain);
+				if ((votes_favor_count*votes_against_count!=0)&&(index<2)) return "orange";
+				return reds[index];
+			}
+			return "orange";
+		}
+
+		// Toggle children on click.
+		function click(d) {
+			if (d.children) {
+			  d._children = d.children;
+			  d.children = null;
+			} else {
+			  d.children = d._children;
+			  d._children = null;
+			}
+			update();
+		}
+
+		// Returns a list of all nodes under the root.
+		function flatten(root) {
+			var nodes = [], i = 0;
+				function recurse(node) {
+			  if (node.children) node.size = node.children.reduce(function(p, v) { return p + recurse(v); }, 0);
+			  if (!node.id) node.id = ++i;
+			  nodes.push(node);
+			  return node.size;
+			}
+			root.size = recurse(root);
+			return nodes;
+		}
+	</script>
+</html>
