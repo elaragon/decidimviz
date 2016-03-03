@@ -27,7 +27,7 @@ Then run the app locally:
 python app.py 
 ```
 
-Finally explore debates and proposals in your web browser by setting the type (debates/proposals) and the corresponding numerical ID , e.g.:
+Finally explore debates and proposals in a web browser by setting the type (debates/proposals) and the corresponding numerical ID , e.g.:
 ```
 http://localhost:8080/thread/?id=4230&type=debates
 ```
