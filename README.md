@@ -13,8 +13,8 @@ The size and colour of the nodes is determined according to the number of votes 
 
 The visualization also includes an informative panel with the description of the tool and the metadata of a node (author, message, date and positive/negative votes) when the user rolls the mouse over it. 
 
-More info about this tool can be found at: http://dcentproject.eu/wp-content/uploads/2016/01/D2.4-%EF%BF%BCFrom-citizen-data-to-wisdom-of-the-Crowd.pdf
-
+More info about this tool can be found at the D-CENT deliverable: [From Citizen Data to Wisdom of the Crowd](http://dcentproject.eu/wp-content/uploads/2016/01/D2.4-%EF%BF%BCFrom-citizen-data-to-wisdom-of-the-Crowd.pdf
+) 
 
 
 ![alt text](https://elaragon.files.wordpress.com/2016/01/decidemadrid.png)
