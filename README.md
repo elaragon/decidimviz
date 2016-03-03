@@ -11,7 +11,9 @@ The size and colour of the nodes is determined according to the number of votes 
 * Red (scale): Comment with majority of negative votes
 * Orange: Comment with no strong preference of positive or negative votes
 
-The visualization also includes an informative panel with the description of the tool and the metadata of a node (author, message, date and positive/negative votes) when the user rolls the mouse over it. More info about this tool can be found at: http://dcentproject.eu/wp-content/uploads/2016/01/D2.4-%EF%BF%BCFrom-citizen-data-to-wisdom-of-the-Crowd.pdf
+The visualization also includes an informative panel with the description of the tool and the metadata of a node (author, message, date and positive/negative votes) when the user rolls the mouse over it. 
+
+More info about this tool can be found at: http://dcentproject.eu/wp-content/uploads/2016/01/D2.4-%EF%BF%BCFrom-citizen-data-to-wisdom-of-the-Crowd.pdf
 
 
 
