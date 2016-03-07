@@ -17,7 +17,7 @@ More info about this tool can be found at the D-CENT deliverable: [From Citizen 
 ) 
 
 
-![alt text](https://elaragon.files.wordpress.com/2016/01/decidemadrid.png)
+![alt text](https://elaragon.files.wordpress.com/2016/03/proposal.png)
 
 ## How to use it
 
