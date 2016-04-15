@@ -98,7 +98,7 @@ def parse_thread(thread_url, parsed_html):
 			votes_total_count = str(parsed_html.find('div', { 'class' : 'votes' }).find('span', { 'class' : 'total-votes' }).getText().encode('utf8').split(' ')[0])
 			if votes_total_count == 'Sin':
 				votes_total_count = '0';
-			votes_against_percentage = str(parsed_html.find('div', { 'class' : 'against inline-block' }).find('span').getText().encode('utf8').split('%')[0])
+			votes_against_percentage = str(parsed_html.find('div', { 'class' : 'against inline-block' }).getText().encode('utf8').split('%')[0])
 			votes_favor_percentage = 100 - int(votes_against_percentage)
 			votes_against_count = int (votes_total_count) * int (votes_against_percentage) / 100
 			votes_favor_count = int (votes_total_count) - votes_against_count
