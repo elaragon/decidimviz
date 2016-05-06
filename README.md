@@ -39,7 +39,7 @@ Finally explore debates and proposals in a web browser by setting the type (deba
 http://localhost:8080/thread/?id=4230&type=debates
 ```
 
-## Licence
+## License
 Code published under AFFERO GPL v3 (see [LICENSE-AGPLv3.txt](https://www.gnu.org/licenses/agpl.txt))
 
 
