@@ -3,7 +3,7 @@ Author: Pablo Aragón @elaragon
 Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 !-->
 <!DOCTYPE html>
-<title>DCENT dataviz</title>
+<title>decidim dataviz</title>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -17,9 +17,6 @@ Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 	<body>
 
 		<nav class="navbar navbar-inverse">
-                       	<img src="../static/demic.png" class="logo">
-                        <img src="../static/eurecat.png" class="logo">
-			<img src="../static/dcent.png" class="logo"> 
 			<div class="navbar-header" id="post-title"/>
 		</nav>
 
@@ -32,8 +29,8 @@ Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 			<div  class="col-md-6">
 				<div class="panel panel-default">
 	  				<div id='panel-body' class="panel-body">
-						Thread from <strong>Decide Madrid</strong>, an open consultation and direct democracy
-						platform launched by the Madrid City Council. The size of each node express the number 
+						Thread from <strong>decidim.barcelona</strong>, an open consultation and direct democracy
+						platform launched by the Barcelona City Council. The size of each node express the number 
 						of votes of that comment and the color is based on the ratio positive/negative votes:
 						<div class="panel-body">
 							<div class="col-md-3"><strong>Black</strong></div>
@@ -66,7 +63,7 @@ Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 		// Force layout configuration
 		var force = d3.layout.force()
 			  .on("tick", tick)
-			  .charge(function(d) { return 10 * d._children ? -d.size / 20 : -200; })
+			  .charge(function(d) { return 10 * d._children ? -d.children.length / 20 : -200; })
 			  .linkDistance(function(d) { return d.target._children ? 10 : 20; })
 			  .size([w, h - 160]);
 
@@ -148,7 +145,7 @@ Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 
 		// Update values
 		function update() {
-			$('#post-title').text('Proposal: ' + root['title']);
+			$('#post-title').text(root['title']);
 			var nodes = flatten(root),
 			    links = d3.layout.tree().links(nodes);
 
@@ -173,23 +170,23 @@ Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 				// Update the nodes…
 			node = vis.selectAll("circle.node").data(nodes, function(d) { 
 				if (d.depth!=0) {				
-				max_votes_favor_gain = Math.max(max_votes_favor_gain, d.votes_favor_count-d.votes_against_count);
-				max_votes_against_gain = Math.max(max_votes_against_gain, d.votes_against_count-d.votes_favor_count);
+				max_votes_favor_gain = Math.max(max_votes_favor_gain, d.total_likes-d.total_dislikes);
+				max_votes_against_gain = Math.max(max_votes_against_gain, d.total_dislikes-d.total_likes);
 				}
 				return d.id;  
 			})
 			.style("fill", color);
 	
-			node.transition().attr("r", function(d) { return d.depth==0 ? 5 : 2.5 + d.size / 2; });
+			node.transition().attr("r", function(d) { return d.depth==0 ? 5 : 2.5 + d.children.length / 2; });
 
 			// Enter any new nodes.
 			node.enter().append("svg:circle")
 			    .attr("class", "node")
 			    .attr("cx", function(d) { return d.x; })
 			    .attr("cy", function(d) { return d.y; })
-			    .attr("r", function(d) { return d.depth==0 ? 5 : 2.5 + d.size / 2; })
+			    .attr("r", function(d) { return d.depth==0 ? 5 : 2.5 + 2 * d.children.length; })
 			    .style("fill", color)
-			    .attr("text", function(d) { d.message })
+			    .attr("text", function(d) { d.summary })
 			    .on("click", click)
 			    .call(force.drag);
 
@@ -208,9 +205,19 @@ Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 			    .on("mouseover", 
 				function(d){  
 					tooltip = '<div class="panel panel-primary">';
-					tooltip = tooltip + '<div class="panel-heading">' + d.ts +' &nbsp;&nbsp;' + d.user + '</div>  <div class="panel-body">   ' + d.message + '<p align="right">'+d.votes_favor_count+'&nbsp;';
-					if (d.type == 'proposal') tooltip = tooltip + 'supports';
-					else tooltip = tooltip + '<i class="fa fa-angle-up"></i>&nbsp;&nbsp;<i class="fa fa-angle-down"></i>&nbsp;'+d.votes_against_count;
+					tooltip = tooltip + '<div class="panel-heading">' + d.created_at +' &nbsp;&nbsp;' + d.author.name + '</div>  <div class="panel-body">   ';
+					if (d.depth==0) tooltip = tooltip + d.summary;
+					else tooltip = tooltip + d.body;
+
+					if (d.depth==0) {
+						if (d.url.indexOf('/proposals/') !== -1) 
+							tooltip + '<p align="right">'+d.total_votes+'&nbsp; supports';
+					}
+					else {
+						tooltip = tooltip + '<p align="right">'+d.total_likes+'&nbsp;<i class="fa fa-angle-up"></i>&nbsp;&nbsp;<i class="fa fa-angle-down"></i>&nbsp;'+d.total_dislikes;
+					}
+					/*if (d.url.indexOf('/proposals/') !== -1) tooltip = tooltip + 'supports';
+					else tooltip = tooltip + '<i class="fa fa-angle-up"></i>&nbsp;&nbsp;<i class="fa fa-angle-down"></i>&nbsp;'+d.total_votes;*/
 					tooltip = tooltip + '</p>   </div> </div>'
 					div.html(tooltip)
 
@@ -219,18 +226,18 @@ Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 
 		// Set colors according to voting ratio
 		function color(d) {
-			var votes_favor_count = parseInt(d.votes_favor_count);
-			var votes_against_count = parseInt(d.votes_against_count);
+			var total_likes = parseInt(d.total_likes);
+			var total_dislikes = parseInt(d.total_dislikes);
 			if (d.depth==0) { return "black"; }
-			if (votes_favor_count + votes_against_count==0) { return "grey"; }
-			if (votes_favor_count > votes_against_count) { 
-				index = Math.floor(9*(votes_favor_count - votes_against_count)/ max_votes_favor_gain);
-				if ((votes_favor_count*votes_against_count!=0)&&(index<2)) return "orange";
+			if (total_likes + total_dislikes==0) { return "grey"; }
+			if (total_likes > total_dislikes) { 
+				index = Math.floor(9*(total_likes - total_dislikes)/ max_votes_favor_gain);
+				if ((total_likes*total_dislikes!=0)&&(index<2)) return "orange";
 				return greens[index];				
 			}			
-			if (votes_against_count > votes_favor_count) { 
-				index = Math.floor(9*(votes_against_count - votes_favor_count)/ max_votes_against_gain);
-				if ((votes_favor_count*votes_against_count!=0)&&(index<2)) return "orange";
+			if (total_dislikes > total_likes) { 
+				index = Math.floor(9*(total_dislikes - total_likes)/ max_votes_against_gain);
+				if ((total_likes*total_dislikes!=0)&&(index<2)) return "orange";
 				return reds[index];
 			}
 			return "orange";
