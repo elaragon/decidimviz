@@ -3,7 +3,7 @@ Author: Pablo Aragón @elaragon
 Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 !-->
 <!DOCTYPE html>
-<title>decidim dataviz</title>
+<title>decidimviz</title>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -16,8 +16,8 @@ Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 	</head>
 	<body>
 
-		<nav class="navbar navbar-inverse">
-			<div class="navbar-header" id="post-title"/>
+		<nav class="">
+			<div class="navbar-header col-md-6" id="post-title"/>
 		</nav>
 
 		<div id="copyright" class="pull-right">
@@ -51,11 +51,11 @@ Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 		</div>
 	</body>
 	<script type="text/javascript">
-
+			
 		// Size of the window
 		var margin = {top: -5, right: -5, bottom: -5, left: -5};
-		var w = document.getElementById("vis").clientWidth,
-			  h = $( document ).height(),
+		var w = $(document).width()/2,
+			  h = $(document).height(),
 			  node,
 			  link,
 			  root;
@@ -187,7 +187,6 @@ Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 			    .attr("r", function(d) { return d.depth==0 ? 5 : 2.5 + 2 * d.children.length; })
 			    .style("fill", color)
 			    .attr("text", function(d) { d.summary })
-			    .on("click", click)
 			    .call(force.drag);
 
 			// Exit any old nodes.
@@ -211,13 +210,11 @@ Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 
 					if (d.depth==0) {
 						if (d.url.indexOf('/proposals/') !== -1) 
-							tooltip + '<p align="right">'+d.total_votes+'&nbsp; supports';
+							tooltip = tooltip + '<p align="right">'+d.total_votes+'&nbsp; supports';
 					}
 					else {
 						tooltip = tooltip + '<p align="right">'+d.total_likes+'&nbsp;<i class="fa fa-angle-up"></i>&nbsp;&nbsp;<i class="fa fa-angle-down"></i>&nbsp;'+d.total_dislikes;
 					}
-					/*if (d.url.indexOf('/proposals/') !== -1) tooltip = tooltip + 'supports';
-					else tooltip = tooltip + '<i class="fa fa-angle-up"></i>&nbsp;&nbsp;<i class="fa fa-angle-down"></i>&nbsp;'+d.total_votes;*/
 					tooltip = tooltip + '</p>   </div> </div>'
 					div.html(tooltip)
 
@@ -241,18 +238,6 @@ Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 				return reds[index];
 			}
 			return "orange";
-		}
-
-		// Toggle children on click.
-		function click(d) {
-			if (d.children) {
-			  d._children = d.children;
-			  d.children = null;
-			} else {
-			  d.children = d._children;
-			  d._children = null;
-			}
-			update();
 		}
 
 		// Returns a list of all nodes under the root.
