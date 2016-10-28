@@ -2,7 +2,6 @@ html, body {
 	height: 100%;
 }
 .fill { 
-	min-height: 100%;
 }
 
 body {
@@ -12,11 +11,12 @@ body {
  overflow: hidden;
  position: relative;
  background-color:#000;
- background-image: url("../static/banner.png");
- background-repeat: no-repeat;
- background-attachment: fixed;
- background-position: center bottom;
  background-size: 100% auto;
+}
+.credits {
+ color: #fff;
+ font-size: 20px;
+ text-align: right;
 }
 
 img.logo{
@@ -122,8 +122,8 @@ body > svg {
 }
 
 circle.node {
- stroke: #9ecae1;
- stroke-width: 0.5px;
+/* stroke: #9ecae1;
+ stroke-width: 0.5px;*/
 }
 
 line.link {
