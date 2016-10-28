@@ -23,7 +23,7 @@ def index():
 
 	page = 1
 	while page!=None:
-		comments_page = json.loads(fetch_url('https://decidim.barcelona/api/comments.json?commentable[id]='+id+'&commentable[type]='+type.title()+'&page='+str(page)))
+		comments_page = json.loads(fetch_url('https://decidim.barcelona/api/comments.json?commentable[id]='+id+'&commentable[type]='+type.title()+'&order=oldest&page='+str(page)))
 		for comment in comments_page['comments']:
 			comment['children'] = []
 			if comment['ancestry'] == None:
