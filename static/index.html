@@ -16,13 +16,15 @@ Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 	</head>
 	<body>
 
-		<nav class="">
-			<div class="navbar-header col-md-6" id="post-title"/>
-		</nav>
-
-		<div id="copyright" class="pull-right">
-			Developed by @elaragon <img src="../static/CC.png">
+		<div class="row fill">
+			<div class="navbar-header col-md-6" id="post-title"></div>
+			<div class="navbar-header col-md-6 credits">
+				Developed by @elaragon <img src="../static/CC.png">
+			</div>
 		</div>
+
+		<br/>
+
 
 		<div class="row fill">
 			<div id="vis" class="col-md-6"></div>
@@ -176,16 +178,36 @@ Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 				return d.id;  
 			})
 			.style("fill", color);
-	
-			node.transition().attr("r", function(d) { return d.depth==0 ? 5 : 2.5 + d.children.length / 2; });
+
+			node.transition().attr("r", function(d) { return d.depth==0 ? 10 : 2.5 + d.children.length / 2; });
 
 			// Enter any new nodes.
 			node.enter().append("svg:circle")
 			    .attr("class", "node")
+			    .style("stroke", function(d) { 
+			var total_likes = parseInt(d.total_likes);
+			var total_dislikes = parseInt(d.total_dislikes);
+			if (d.depth==0) { return "grey"; }
+			if (total_likes + total_dislikes==0) { return "grey"; }
+			if (total_likes==0) { return "red"; }
+			if (total_dislikes==0) { return "green"; }
+			ratio = Math.abs(total_likes/total_dislikes);
+			if ((0.5<=ratio) && (ratio<=2)) return "orange";
+			if (total_likes > total_dislikes) return "green";				
+			else return "red";
+
+
+				})
+			    .style("stroke-width", "2px")
 			    .attr("cx", function(d) { return d.x; })
 			    .attr("cy", function(d) { return d.y; })
-			    .attr("r", function(d) { return d.depth==0 ? 5 : 2.5 + 2 * d.children.length; })
-			    .style("fill", color)
+			    .attr("r", function(d) { return d.depth==0 ? 5 : 2.5 + (d.total_dislikes+d.total_likes); })
+			    .style("fill", function(d) {  
+				if (d.depth==0) return "black";
+				else if (d.alignment==null) return "grey";
+				else if (d.alignment==1) return "green";
+				else return "red";
+				})
 			    .attr("text", function(d) { d.summary })
 			    .call(force.drag);
 
@@ -229,12 +251,12 @@ Based on Collapsible Force Layout http://bl.ocks.org/mbostock/1062288
 			if (total_likes + total_dislikes==0) { return "grey"; }
 			if (total_likes > total_dislikes) { 
 				index = Math.floor(9*(total_likes - total_dislikes)/ max_votes_favor_gain);
-				if ((total_likes*total_dislikes!=0)&&(index<2)) return "orange";
+				if ((total_likes*total_dislikes!=0)&&(index<4)) return "orange";
 				return greens[index];				
 			}			
 			if (total_dislikes > total_likes) { 
 				index = Math.floor(9*(total_dislikes - total_likes)/ max_votes_against_gain);
-				if ((total_likes*total_dislikes!=0)&&(index<2)) return "orange";
+				if ((total_likes*total_dislikes!=0)&&(index<4)) return "orange";
 				return reds[index];
 			}
 			return "orange";
